@@ -32,7 +32,7 @@ def load_dataset(enc, path):
 
     token_chunks = []
     for path in tqdm.tqdm(paths):
-        with open(path, 'r', encoding='utf8') as fp:
+        with open(path, 'r', encoding='utf8', errors='ignore') as fp:
             raw_text = fp.read()
         tokens = np.stack(enc.encode(raw_text))
         token_chunks.append(tokens)
