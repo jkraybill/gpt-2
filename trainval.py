@@ -5,6 +5,7 @@
 import fire
 import json
 import os
+import glob
 import numpy as np
 import tensorflow as tf
 import random
@@ -36,7 +37,6 @@ def load_dataset(enc, path):
             for fname in fnames:
                 paths.append(os.path.join(dirpath, fname))
     else:
-        # Assume glob
         paths = glob.glob(path)
 
     token_chunks = []
@@ -94,7 +94,8 @@ class Sampler(object):
 
 
 def train_main(dataset,
-               model_name='345M',
+               valset,
+               model_name='117M',
                seed=None,
                batch_size=1,
                sample_length=1023,
@@ -174,6 +175,12 @@ def train_main(dataset,
         print('dataset has', data_sampler.total_size, 'tokens')
         print('Training...')
 
+        print('Loading valset...')
+        val_chunks = load_dataset(enc, valset)
+        val_data_sampler = Sampler(val_chunks)
+        print('valset has', val_data_sampler.total_size, 'tokens')
+        print('Training...')
+
         counter = 1
         if os.path.exists(os.path.join(CHECKPOINT_DIR, run_name, 'counter')):
             # Load the step number if we're resuming a run
@@ -217,6 +224,7 @@ def train_main(dataset,
                 fp.write('\n'.join(all_text))
 
         avg_loss = (0.0, 0.0)
+        val_loss = (0.0, 0.0)
         start_time = time.time()
 
         try:
@@ -240,6 +248,17 @@ def train_main(dataset,
                         loss=lv,
                         avg=avg_loss[0] / avg_loss[1]))
 
+                if counter % 10 == 0:
+                    valbatch = [val_data_sampler.sample(1024) for _ in range(batch_size)]
+                    valacc = sess.run(loss, feed_dict={context: valbatch})
+                    val_loss = (val_loss[0] * 0.99 + valacc, val_loss[1] * 0.99 + 1.0)
+                    print(
+                        '[{counter} | {time:2.2f}] VAL_loss={loss:2.2f} VAL_avg={avg:2.2f}'
+                        .format(
+                            counter=counter,
+                            time=time.time() - start_time,
+                            loss=valacc,
+                            avg=val_loss[0] / val_loss[1]))
                 counter += 1
         except KeyboardInterrupt:
             print('interrupted')
