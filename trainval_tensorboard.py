@@ -15,6 +15,8 @@ import model
 import sample
 import encoder
 
+from tensorboardcolab import *
+
 CHECKPOINT_DIR = 'checkpoint'
 SAMPLE_DIR = 'samples'
 
