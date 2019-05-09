@@ -230,7 +230,7 @@ def train_main(dataset,
         missed_val_checkpoints = 0
 
         try:
-            while counter != stop_after:
+            while counter < stop_after:
                 #if counter % save_every == 0:
                 #    save()
                 if counter % sample_every == 0:
@@ -255,12 +255,13 @@ def train_main(dataset,
                     valacc = sess.run(loss, feed_dict={context: valbatch})
                     val_loss = (val_loss[0] * 0.99 + valacc, val_loss[1] * 0.99 + 1.0)
                     av_val_loss = val_loss[0] / val_loss[1]
-                    if av_val_loss < best_val_loss and counter >= 100 and counter % 100 == 0: # got a good one from validation, save a checkpoint (every 100)
-                        save()
-                        best_val_loss = av_val_loss
-                        missed_val_checkpoints = 0
-                    else:
-                        missed_val_checkpoints += 1
+                    if counter >= 100 and counter % 100 == 0: # check for validation checkpoints every 100 iterations.
+                        if av_val_loss < best_val_loss: # got a good one from validation, save a checkpoint (every 100)
+                            save()
+                            best_val_loss = av_val_loss
+                            missed_val_checkpoints = 0
+                        else: # missed a validation checkpoint. tolerate like 10 of these.
+                            missed_val_checkpoints += 1
                     if missed_val_checkpoints > 9: # missed too many save opportunities, stop training
                         counter = stop_after
                     print(
