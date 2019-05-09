@@ -242,7 +242,7 @@ def train_main(dataset,
                 avg_loss = (avg_loss[0] * 0.99 + lv, avg_loss[1] * 0.99 + 1.0)
 
                 print(
-                    '[{counter} | {time:2.2f}] loss={loss:2.2f} avg={avg:2.2f}'
+                    '[{counter} | {time:2.2f}] loss={loss:2.4f} avg={avg:2.4f}'
                     .format(
                         counter=counter,
                         time=time.time() - start_time,
@@ -258,7 +258,7 @@ def train_main(dataset,
                         save()
                         best_val_loss = av_val_loss
                     print(
-                        '[{counter} | {time:2.2f}] VAL_loss={loss:2.2f} VAL_avg={avg:2.2f}'
+                        '[{counter} | {time:2.2f}] VAL_loss={loss:2.4f} VAL_avg={avg:2.4f}'
                         .format(
                             counter=counter,
                             time=time.time() - start_time,
