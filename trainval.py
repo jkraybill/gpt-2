@@ -226,11 +226,12 @@ def train_main(dataset,
         avg_loss = (0.0, 0.0)
         val_loss = (0.0, 0.0)
         start_time = time.time()
+        best_val_loss = 99
 
         try:
             while counter != stop_after:
-                if counter % save_every == 0:
-                    save()
+                #if counter % save_every == 0:
+                #    save()
                 if counter % sample_every == 0:
                     generate_samples()
 
@@ -248,17 +249,21 @@ def train_main(dataset,
                         loss=lv,
                         avg=avg_loss[0] / avg_loss[1]))
 
-                if counter % 10 == 0:
+                if counter % 5 == 0:
                     valbatch = [val_data_sampler.sample(1024) for _ in range(batch_size)]
                     valacc = sess.run(loss, feed_dict={context: valbatch})
                     val_loss = (val_loss[0] * 0.99 + valacc, val_loss[1] * 0.99 + 1.0)
+                    av_val_loss = val_loss[0] / val_loss[1]
+                    if av_val_loss < best_val_loss && counter >= 100 && counter % 100 == 0:
+                        save()
+                        best_val_loss = av_val_loss
                     print(
                         '[{counter} | {time:2.2f}] VAL_loss={loss:2.2f} VAL_avg={avg:2.2f}'
                         .format(
                             counter=counter,
                             time=time.time() - start_time,
                             loss=valacc,
-                            avg=val_loss[0] / val_loss[1]))
+                            avg=av_val_loss))
                 counter += 1
         except KeyboardInterrupt:
             print('interrupted')
