@@ -270,12 +270,12 @@ def train_main(dataset,
                         else: # missed a validation checkpoint. tolerate like 10 of these.
                             missed_val_checkpoints += 1
                     if missed_val_checkpoints > 9: # missed too many save opportunities, stop training
-                        counter = stop_after
+                        counter = stop_after + 1
                 counter += 1
         except KeyboardInterrupt:
             print('interrupted')
-        finally:
-            save()
+        #finally:
+        #    save()
 
 
 if __name__ == '__main__':
