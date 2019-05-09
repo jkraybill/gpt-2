@@ -98,6 +98,7 @@ def train_main(dataset,
                model_name='117M',
                seed=None,
                batch_size=1,
+               batch_length=1024,
                sample_length=1023,
                sample_num=1,
                sample_every=100,
@@ -236,7 +237,7 @@ def train_main(dataset,
                 if counter % sample_every == 0:
                     generate_samples()
 
-                batch = [data_sampler.sample(1024) for _ in range(batch_size)]
+                batch = [data_sampler.sample(batch_length) for _ in range(batch_size)]
 
                 _, lv = sess.run((opt, loss), feed_dict={context: batch})
 
@@ -251,7 +252,7 @@ def train_main(dataset,
                         avg=avg_loss[0] / avg_loss[1]))
 
                 if counter % 5 == 0:
-                    valbatch = [val_data_sampler.sample(1024) for _ in range(batch_size)]
+                    valbatch = [val_data_sampler.sample(batch_length) for _ in range(batch_size)]
                     valacc = sess.run(loss, feed_dict={context: valbatch})
                     val_loss = (val_loss[0] * 0.99 + valacc, val_loss[1] * 0.99 + 1.0)
                     av_val_loss = val_loss[0] / val_loss[1]
