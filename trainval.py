@@ -227,6 +227,7 @@ def train_main(dataset,
         val_loss = (0.0, 0.0)
         start_time = time.time()
         best_val_loss = 99
+        missed_val_checkpoints = 0
 
         try:
             while counter != stop_after:
@@ -254,9 +255,14 @@ def train_main(dataset,
                     valacc = sess.run(loss, feed_dict={context: valbatch})
                     val_loss = (val_loss[0] * 0.99 + valacc, val_loss[1] * 0.99 + 1.0)
                     av_val_loss = val_loss[0] / val_loss[1]
-                    if av_val_loss < best_val_loss && counter >= 100 && counter % 100 == 0:
+                    if av_val_loss < best_val_loss and counter >= 100 and counter % 100 == 0: # got a good one from validation, save a checkpoint (every 100)
                         save()
                         best_val_loss = av_val_loss
+                        missed_val_checkpoints = 0
+                    else:
+                        missed_val_checkpoints += 1
+                    if missed_val_checkpoints > 9: # missed too many save opportunities, stop training
+                        counter = stop_after
                     print(
                         '[{counter} | {time:2.2f}] VAL_loss={loss:2.4f} VAL_avg={avg:2.4f}'
                         .format(
