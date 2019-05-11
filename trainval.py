@@ -257,12 +257,13 @@ def train_main(dataset,
                     val_loss = (val_loss[0] * 0.99 + valacc, val_loss[1] * 0.99 + 1.0)
                     av_val_loss = val_loss[0] / val_loss[1]
                     print(
-                        '[{counter} | {time:2.2f}] VAL_loss={loss:2.4f} VAL_avg={avg:2.4f}'
+                        '[{counter} | {time:2.2f}] VAL_loss={loss:2.4f} VAL_avg={avg:2.4f} best={best:2.4f}'
                         .format(
                             counter=counter,
                             time=time.time() - start_time,
                             loss=valacc,
-                            avg=av_val_loss))
+                            avg=av_val_loss,
+                            best=best_val_loss))
                     if counter >= 100 and counter % 100 == 0: # check for validation checkpoints every 100 iterations.
                         if av_val_loss < best_val_loss: # got a good one from validation, save a checkpoint (every 100)
                             save()
