@@ -264,8 +264,8 @@ def train_main(dataset,
                             loss=valacc,
                             avg=av_val_loss,
                             best=best_val_loss))
-                    if counter >= 100 and counter % 100 == 0: # check for validation checkpoints every 100 iterations.
-                        if av_val_loss < best_val_loss: # got a good one from validation, save a checkpoint (every 100)
+                    if counter >= save_every and counter % save_every == 0: # check for validation checkpoints every save_every iterations.
+                        if av_val_loss < best_val_loss: # got a good one from validation, save a checkpoint (every save_every)
                             save()
                             best_val_loss = av_val_loss
                             missed_val_checkpoints = 0
