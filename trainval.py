@@ -141,9 +141,9 @@ def train_main(dataset,
             temperature=1.0,
             top_k=40)
 
-        train_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
+        all_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
         #this line is to hopefully reduce memory usage (found on Twitter: https://twitter.com/BasedBlue/status/1169601983046672385?s=20)
-        train_vars = train_vars[-60:]
+        train_vars = all_vars[-60:]
         opt = tf.train.AdamOptimizer(learning_rate=learning_rate,
                                      beta1=beta1,
                                      beta2=beta2,
@@ -152,7 +152,7 @@ def train_main(dataset,
                                                 var_list=train_vars)
 
         saver = tf.train.Saver(
-            var_list=train_vars,
+            var_list=all_vars,
             max_to_keep=5,
             keep_checkpoint_every_n_hours=2)
         sess.run(tf.global_variables_initializer())
