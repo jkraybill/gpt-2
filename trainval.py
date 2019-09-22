@@ -95,7 +95,7 @@ class Sampler(object):
 
 def train_main(dataset,
                valset,
-               model_name='117M',
+               model_name='774M',
                seed=None,
                batch_size=1,
                batch_length=1024,
@@ -142,6 +142,8 @@ def train_main(dataset,
             top_k=40)
 
         train_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
+        #this line is to hopefully reduce memory usage (found on Twitter)
+        train_vars = train_vars[-12:]
         opt = tf.train.AdamOptimizer(learning_rate=learning_rate,
                                      beta1=beta1,
                                      beta2=beta2,
