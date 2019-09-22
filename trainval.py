@@ -109,7 +109,8 @@ def train_main(dataset,
                beta1=0.9,
                beta2=0.999,
                epsilon=1e-08,
-               save_every=1000):
+               save_every=1000,
+               layers_to_train=144):
 
     enc = encoder.get_encoder(model_name)
     hparams = model.default_hparams()
@@ -143,7 +144,8 @@ def train_main(dataset,
 
         all_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
         #this line is to hopefully reduce memory usage (found on Twitter: https://twitter.com/BasedBlue/status/1169601983046672385?s=20)
-        train_vars = all_vars[-144:]
+        train_vars = all_vars[-layers_to_train:]
+        print("Training", -layers_to_train, "layers out of", len(all_vars))
         opt = tf.train.AdamOptimizer(learning_rate=learning_rate,
                                      beta1=beta1,
                                      beta2=beta2,
