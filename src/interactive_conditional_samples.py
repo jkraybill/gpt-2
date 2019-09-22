@@ -60,8 +60,11 @@ def interact_model(
             temperature=temperature, top_k=top_k
         )
 
-        saver = tf.train.Saver()
         ckpt = tf.train.latest_checkpoint(os.path.join('models', model_name))
+        saver = tf.train.Saver()
+        train_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
+        #this line is to hopefully reduce memory usage (found on Twitter: https://twitter.com/BasedBlue/status/1169601983046672385?s=20)
+        train_vars = train_vars[-60:]
         saver.restore(sess, ckpt)
 
         while True:
