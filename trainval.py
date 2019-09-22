@@ -143,7 +143,7 @@ def train_main(dataset,
 
         all_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
         #this line is to hopefully reduce memory usage (found on Twitter: https://twitter.com/BasedBlue/status/1169601983046672385?s=20)
-        train_vars = all_vars[-60:]
+        train_vars = all_vars[-144:]
         opt = tf.train.AdamOptimizer(learning_rate=learning_rate,
                                      beta1=beta1,
                                      beta2=beta2,
