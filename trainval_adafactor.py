@@ -150,7 +150,7 @@ def train_main(dataset,
         
         if optim == 'Adafactor':
             opt = AdafactorOptimizer(
-                learning_rate=lr,
+                learning_rate=learning_rate,
                 decay_rate=decay_rate,
                 beta1=beta1,
                 name="Adafactor").minimize(loss,
