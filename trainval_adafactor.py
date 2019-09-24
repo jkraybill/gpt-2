@@ -149,6 +149,7 @@ def train_main(dataset,
         print("Training", layers_to_train, "layers out of", len(all_vars))
         
         if optim == 'Adafactor':
+            decay_rate = adafactor_decay_rate_adam(beta2)
             opt = AdafactorOptimizer(
                 learning_rate=learning_rate,
                 decay_rate=decay_rate,
