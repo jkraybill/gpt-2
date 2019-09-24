@@ -112,8 +112,7 @@ def train_main(dataset,
                beta2=0.999,
                epsilon=1e-08,
                save_every=1000,
-               layers_to_train=144,
-               optim='Adam'):
+               layers_to_train=144):
 
     enc = encoder.get_encoder(model_name)
     hparams = model.default_hparams()
@@ -151,25 +150,16 @@ def train_main(dataset,
         train_vars = all_vars[-layers_to_train:]
         print("Training", layers_to_train, "layers out of", len(all_vars))
         
-        if optim == 'Adafactor':
-            decay_rate = adafactor_decay_rate_adam(beta2)
-            opt = AdafactorOptimizer(
-                learning_rate=learning_rate,
-                decay_rate=decay_rate,
-                beta1=beta1,
-                name="Adafactor").minimize(loss, var_list=train_vars)
-            opt_grads = memory_saving_gradients.gradients(loss, train_vars)
-            opt_grads = list(zip(opt_grads, train_vars))
-            opt_apply = opt.apply_gradients(opt_grads)
-            summary_loss = tf.summary.scalar('loss', loss)
-        else:
-            opt = tf.train.AdamOptimizer(learning_rate=learning_rate,
-                                         beta1=beta1,
-                                         beta2=beta2,
-                                         epsilon=epsilon
-                                         ).minimize(loss,
-                                                    var_list=train_vars)
-
+        decay_rate = adafactor_decay_rate_adam(beta2)
+        opt = AdafactorOptimizer(
+            learning_rate=learning_rate,
+            decay_rate=decay_rate,
+            beta1=beta1,
+            name="Adafactor")
+        opt_grads = memory_saving_gradients.gradients(loss, train_vars)
+        opt_grads = list(zip(opt_grads, train_vars))
+        opt_apply = opt.apply_gradients(opt_grads)
+        summary_loss = tf.summary.scalar('loss', loss)
 
         saver = tf.train.Saver(
             var_list=all_vars,
@@ -261,7 +251,7 @@ def train_main(dataset,
 
                 batch = [data_sampler.sample(batch_length) for _ in range(batch_size)]
 
-                _, lv = sess.run((opt, loss), feed_dict={context: batch})
+                _, lv = sess.run((opt_apply, loss), feed_dict={context: batch})
 
                 avg_loss = (avg_loss[0] * 0.99 + lv, avg_loss[1] * 0.99 + 1.0)
 
