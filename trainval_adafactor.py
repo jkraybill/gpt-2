@@ -157,7 +157,7 @@ def train_main(dataset,
                 learning_rate=learning_rate,
                 decay_rate=decay_rate,
                 beta1=beta1,
-                name="Adafactor")
+                name="Adafactor").minimize(loss, var_list=train_vars)
             opt_grads = memory_saving_gradients.gradients(loss, train_vars)
             opt_grads = list(zip(opt_grads, train_vars))
             opt_apply = opt.apply_gradients(opt_grads)
