@@ -10,10 +10,12 @@ import numpy as np
 import tensorflow as tf
 import random
 import time
+from tensorflow.core.protobuf import rewriter_config_pb2
 
 import model
 import sample
 import encoder
+import memory_saving_gradients
 
 CHECKPOINT_DIR = 'checkpoint'
 SAMPLE_DIR = 'samples'
@@ -126,6 +128,7 @@ def train_main(dataset,
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
+    config.graph_options.rewrite_options.layout_optimizer = rewriter_config_pb2.RewriterConfig.OFF
     with tf.Session(config=config) as sess:
         context = tf.placeholder(tf.int32, [batch_size, None])
         np.random.seed(seed)
@@ -154,8 +157,11 @@ def train_main(dataset,
                 learning_rate=learning_rate,
                 decay_rate=decay_rate,
                 beta1=beta1,
-                name="Adafactor").minimize(loss,
-                                                    var_list=train_vars)
+                name="Adafactor")
+            opt_grads = memory_saving_gradients.gradients(loss, train_vars)
+            opt_grads = list(zip(opt_grads, train_vars))
+            opt_apply = opt.apply_gradients(opt_grads)
+            summary_loss = tf.summary.scalar('loss', loss)
         else:
             opt = tf.train.AdamOptimizer(learning_rate=learning_rate,
                                          beta1=beta1,
